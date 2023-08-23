@@ -1,5 +1,21 @@
 from rest_framework import serializers
 from . models import Post, PostImages
+import re
+
+class FormatValidator:
+    def validate(self, data, exception=None):
+        error = {}
+
+        for file, formats in data.items():
+            if file:
+                file_name = file.name
+                file_format = file_name.split('.')[-1]
+                if file_format not in formats:
+                    error[file_name] = [f'{file_format} not supported:']
+        
+        if dict:
+            raise exception(error)
+
 
 
 
@@ -23,6 +39,29 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['id', 'phone_number', 'name', 'description', 'image','images', 'upload_images', 'txt_file', 'pdf_file', 'voice_file']
 
 
+    def validate(self, data):
+        print(data)
+
+        files = {
+            data.get('txt_file'): ['txt'],
+            data.get('pdf_file'): ['pdf'],
+            data.get('voice_file'): ['mp3', 'ogg'],
+        }
+
+        fm = FormatValidator()
+        fm.validate(files, serializers.ValidationError)
+        return data
+    
+    def validate_phone_number(self, value):
+            pattern = r'^09\d{9}$'
+            if not re.match(pattern, value):
+                raise serializers.ValidationError('phone_number should be 11 digits, starts with 09')
+            return value
+
+    
+
+
+
     def create(self, validated_data):
         uploaded_images = validated_data.pop('upload_images')
         post = Post.objects.create(**validated_data)
@@ -32,6 +71,7 @@ class PostSerializer(serializers.ModelSerializer):
 
         return post
     
+
     def update(self, instance, validated_data):
         uploaded_images = validated_data.pop('upload_images', [])
 
@@ -39,6 +79,7 @@ class PostSerializer(serializers.ModelSerializer):
             PostImages.objects.create(post=instance, image=image)
         return super().update(instance, validated_data)
     
+
 
     def delete_all_images(self, instance=None):
         post_images = PostImages.objects.filter(post=instance)
@@ -52,6 +93,13 @@ class PostSerializer(serializers.ModelSerializer):
         txt_file = bool(params.get('txt_file', False))
         pdf_file = bool(params.get('pdf_file', False))
         voice_file = bool(params.get('voice_file', False))
+        images = params.get('images', '')
+
+        images = images.split(',')
+        images = [int(img) for img in images]
+        post_images = PostImages.objects.filter(id__in=images)
+        post_images.delete()
+
 
         data = {
             'phone_number': phone_number,
@@ -60,14 +108,6 @@ class PostSerializer(serializers.ModelSerializer):
             'pdf_file': pdf_file,
             'voice_file': voice_file,
         }
-
-        images = params.get('images', '')
-        images = images.split(',')
-
-        images = [int(img) for img in images]
-        post_images = PostImages.objects.filter(id__in=images)
-        post_images.delete()
-
 
         for k, v in data.items():
             if v:
