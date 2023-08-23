@@ -36,7 +36,9 @@ class PostViewSet(viewsets.ModelViewSet):
 
 
     def update(self, request, *args, **kwargs):
-        
+        partial = kwargs.get('partial', False)
 
+        if not partial:
+            self.get_serializer().delete_all_images(instance=self.get_object())
 
         return super().update(request, *args, **kwargs)

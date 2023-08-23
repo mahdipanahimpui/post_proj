@@ -40,8 +40,9 @@ class PostSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
     
 
-    def update_uploaded_images(self, post_instance, validated_data):
-        
+    def delete_all_images(self, instance=None):
+        post_images = PostImages.objects.filter(post=instance)
+        post_images.delete()
 
 
 
