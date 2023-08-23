@@ -15,6 +15,8 @@ class FormatValidator:
         
         if dict:
             raise exception(error)
+        
+        return True
 
 
 
@@ -40,8 +42,6 @@ class PostSerializer(serializers.ModelSerializer):
 
 
     def validate(self, data):
-        print(data)
-
         files = {
             data.get('txt_file'): ['txt'],
             data.get('pdf_file'): ['pdf'],
@@ -51,6 +51,7 @@ class PostSerializer(serializers.ModelSerializer):
         fm = FormatValidator()
         fm.validate(files, serializers.ValidationError)
         return data
+    
     
     def validate_phone_number(self, value):
             pattern = r'^09\d{9}$'
@@ -63,7 +64,7 @@ class PostSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-        uploaded_images = validated_data.pop('upload_images')
+        uploaded_images = validated_data.pop('upload_images', [])
         post = Post.objects.create(**validated_data)
 
         for image in uploaded_images:
