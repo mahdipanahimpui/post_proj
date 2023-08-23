@@ -33,7 +33,7 @@ class PostSerializer(serializers.ModelSerializer):
         return post
     
     def update(self, instance, validated_data):
-        uploaded_images = validated_data.pop('upload_images')
+        uploaded_images = validated_data.pop('upload_images', [])
 
         for image in uploaded_images:
             PostImages.objects.create(post=instance, image=image)
@@ -43,6 +43,41 @@ class PostSerializer(serializers.ModelSerializer):
     def delete_all_images(self, instance=None):
         post_images = PostImages.objects.filter(post=instance)
         post_images.delete()
+
+
+    
+    def partial_delete(self, instance, params):
+        phone_number = bool(params.get('phone_number', False))
+        description = bool(params.get('description', False))
+        txt_file = bool(params.get('txt_file', False))
+        pdf_file = bool(params.get('pdf_file', False))
+        voice_file = bool(params.get('voice_file', False))
+
+        data = {
+            'phone_number': phone_number,
+            'description': description,
+            'txt_file': txt_file,
+            'pdf_file': pdf_file,
+            'voice_file': voice_file,
+        }
+
+        images = params.get('images', '')
+        images = images.split(',')
+
+        images = [int(img) for img in images]
+        post_images = PostImages.objects.filter(id__in=images)
+        post_images.delete()
+
+
+        for k, v in data.items():
+            if v:
+                setattr(instance, k, None)
+
+        
+        instance.save()
+        
+
+            
 
 
 

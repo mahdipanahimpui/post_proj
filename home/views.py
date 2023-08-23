@@ -5,6 +5,8 @@ from rest_framework import viewsets
 from . models import Post, PostImages
 from . serializers import PostSerializer
 from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 
 
@@ -19,20 +21,16 @@ class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
 
-    @action(detail=True, methods=['delete'])
-    def delete_partial(self, request, pk=None, **kwargs):
+    def destroy(self, request, *args, **kwargs):
+        partial = bool(request.query_params.get('partial', False))
 
-        phone_number = bool(request.query_params.get('phone_number', False))
-        description = bool(request.query_params.get('description', False))
-        txt_file = bool(request.query_params.get('txt_file', False))
-        pdf_file = bool(request.query_params.get('pdf_file', False))
-        voice_file = bool(request.query_params.get('voice_file', False))
-        images = request.query_params.get('images', False)
-        images = images.split(',')
-        images = [int(img) for img in images]
+        if not partial:
+            return super().destroy(request, *args, **kwargs)
 
-        print(images)
-        return HttpResponse('hello')
+        self.get_serializer().partial_delete(instance=self.get_object(), params=request.query_params.dict())
+        return super().retrieve(request, *args, **kwargs)
+
+
 
 
     def update(self, request, *args, **kwargs):
