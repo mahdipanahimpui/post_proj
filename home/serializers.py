@@ -4,20 +4,18 @@ import re
 
 class FormatValidator:
     def validate(self, data, exception=None):
-        error = {}
+        errors = {}
 
         for file, formats in data.items():
             if file:
                 file_name = file.name
                 file_format = file_name.split('.')[-1]
                 if file_format not in formats:
-                    error[file_name] = [f'{file_format} not supported:']
+                    errors[file_name] = [f'{file_format} not supported. supported formats: {formats}']
         
-        if dict:
-            raise exception(error)
+        if errors:
+            raise exception(errors)
         
-        return True
-
 
 
 
@@ -59,11 +57,12 @@ class PostSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError('phone_number should be 11 digits, starts with 09')
             return value
 
-    
 
 
 
     def create(self, validated_data):
+        print('validated_data', validated_data)
+
         uploaded_images = validated_data.pop('upload_images', [])
         post = Post.objects.create(**validated_data)
 
@@ -97,7 +96,7 @@ class PostSerializer(serializers.ModelSerializer):
         images = params.get('images', '')
 
         images = images.split(',')
-        images = [int(img) for img in images]
+        images = [int(id) for id in images if id.strip().isdigit()]
         post_images = PostImages.objects.filter(id__in=images)
         post_images.delete()
 
