@@ -96,9 +96,14 @@ class PostSerializer(serializers.ModelSerializer):
         images = params.get('images', '')
 
         images = images.split(',')
-        images = [int(id) for id in images if id.strip().isdigit()]
-        post_images = PostImages.objects.filter(id__in=images)
-        post_images.delete()
+
+        if 'all' in images:
+            all_post_images = PostImages.objects.filter(post=instance)
+            all_post_images.delete()
+        else:
+            images_id = [int(id) for id in images if id.strip().isdigit()]
+            post_images = PostImages.objects.filter(id__in=images_id)
+            post_images.delete()
 
 
         data = {

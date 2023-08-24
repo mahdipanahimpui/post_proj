@@ -11,7 +11,7 @@ def dir_image_Post(instance, filename):
 class Post(models.Model):
     phone_number = models.CharField(max_length=11, null=True, blank=True)
     name = models.CharField(max_length=128)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, max_length=512)
     image = models.ImageField(upload_to=dir_image_Post)
     txt_file = models.FileField(upload_to='txts', blank=True, null=True)
     pdf_file = models.FileField(upload_to='pdfs', blank=True, null=True)

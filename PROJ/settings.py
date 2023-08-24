@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     'home.apps.HomeConfig',
 
     # thid party apps
-    'rest_framework'
+    'rest_framework',
+    'drf_spectacular',
+
 ]
 
 MIDDLEWARE = [
@@ -133,3 +135,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # to use media file:
 MEDIA_URL = '/media/'  # read from root of app in media file
 MEDIA_ROOT = BASE_DIR / 'media' 
+
+
+
+REST_FRAMEWORK = {
+    # YOUR SETTINGS
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Post API',
+    'DESCRIPTION': 'CRUD action of name, description, image, sequence of images, pdf, voice, txt',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
