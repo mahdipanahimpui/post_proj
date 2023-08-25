@@ -1,22 +1,5 @@
 from rest_framework import serializers
 from . models import Post, PostImages
-import re
-
-class FormatValidator:
-    def validate(self, data, exception=None):
-        errors = {}
-
-        for file, formats in data.items():
-            if file:
-                file_name = file.name
-                file_format = file_name.split('.')[-1]
-                if file_format not in formats:
-                    errors[file_name] = [f'{file_format} not supported. supported formats: {formats}']
-        
-        if errors:
-            raise exception(errors)
-        
-
 
 
 class PostImgaesSerializer(serializers.ModelSerializer):
@@ -37,27 +20,8 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = ['id', 'phone_number', 'name', 'description', 'image','images', 'upload_images', 'txt_file', 'pdf_file', 'voice_file']
-
-
-    def validate(self, data):
-        files = {
-            data.get('txt_file'): ['txt'],
-            data.get('pdf_file'): ['pdf'],
-            data.get('voice_file'): ['mp3', 'ogg'],
-        }
-
-        fm = FormatValidator()
-        fm.validate(files, serializers.ValidationError)
-        return data
     
     
-    def validate_phone_number(self, value):
-            pattern = r'^09\d{9}$'
-            if not re.match(pattern, value):
-                raise serializers.ValidationError('phone_number should be 11 digits, starts with 09')
-            return value
-
-
 
 
     def create(self, validated_data):
@@ -118,7 +82,6 @@ class PostSerializer(serializers.ModelSerializer):
             if v:
                 setattr(instance, k, None)
 
-        
         instance.save()
         
 
