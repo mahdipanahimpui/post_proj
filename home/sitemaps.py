@@ -14,7 +14,6 @@ def create_custom_tags(obj, tags):
     return custom_tags
 
 class PostSitemap(Sitemap):
-    template_name = 'custom_sitemap.xml'
 
     priority = '0.7'  # between '0' to '1'
     changefreq = 'daily' # always, hourly, daily, weekly, monthly, yearly, never
