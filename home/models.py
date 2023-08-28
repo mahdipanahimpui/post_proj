@@ -2,7 +2,9 @@ from django.db import models
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
 from functools import partial
+from django.urls import reverse
 import re
+from django.contrib.sitemaps import ping_google
 
 
 
@@ -54,6 +56,18 @@ class Post(models.Model):
         return f'{self.id} - {self.name}'
     
 
+    def get_absolute_url(self):
+        return f'/home/posts/{self.id}/'
+        # return reverse('home:posts', args=(self.id,))
+
+    def save(self, force_insert=False, force_update=False):
+        super().save(force_insert, force_update)
+        try:
+            ping_google()
+        except Exception:
+            print(Exception)
+    
+
 
 class PostImages(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
@@ -63,3 +77,4 @@ class PostImages(models.Model):
 
     def __str__(self):
         return f'{self.id}-{self.post.name} - {self.image}'
+    

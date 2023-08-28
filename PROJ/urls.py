@@ -17,13 +17,27 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from django.contrib.sitemaps.views import sitemap
+from home.sitemaps import PostSitemap
 
+
+sitemaps = {
+    'posts': PostSitemap,
+}
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls', namespace='home'))
 ]
 
+sitemap_urlpatterns = [
+    path(
+        'sitemap.xml', 
+        sitemap, 
+        {'sitemaps': sitemaps}, 
+        name="django.contrib.sitemaps.views.sitemap",
+    )
+]
 
 api_urlpatterns = [
         # YOUR PATTERNS
@@ -34,3 +48,6 @@ api_urlpatterns = [
     ]
 
 urlpatterns += api_urlpatterns
+urlpatterns += sitemap_urlpatterns
+
+
