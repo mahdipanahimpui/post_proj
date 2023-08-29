@@ -19,6 +19,8 @@ from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from django.contrib.sitemaps.views import sitemap
 from home.sitemaps import PostSitemap
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 sitemaps = {
@@ -28,7 +30,7 @@ sitemaps = {
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('home.urls', namespace='home'))
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 sitemap_urlpatterns = [
     path(
