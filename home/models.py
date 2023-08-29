@@ -60,12 +60,12 @@ class Post(models.Model):
         return f'/home/posts/{self.id}/'
         # return reverse('home:posts', args=(self.id,))
 
-    def save(self, force_insert=False, force_update=False):
-        super().save(force_insert, force_update)
-        try:
-            ping_google()
-        except Exception:
-            print(Exception)
+    # def save(self, force_insert=False, force_update=False):
+    #     super().save(force_insert, force_update)
+    #     try:
+    #         ping_google()
+    #     except Exception:
+    #         print(Exception)
     
 
 
